@@ -1,0 +1,22 @@
+version: '3.8'
+
+services:
+  # Étape d'entraînement
+  training:
+    build:
+      context: .
+      dockerfile: docker/train.Dockerfile
+    volumes:
+      - ./models:/home/mluser/models
+
+  # Étape de service (API)
+  api:
+    build:
+      context: .
+      dockerfile: docker/serve.Dockerfile
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./models:/home/mluser/models
+    depends_on:
+      - training

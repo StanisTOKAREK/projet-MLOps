@@ -4,17 +4,17 @@ import logging
 import os
 import random
 import numpy as np
+import json  # Ajouté pour gérer le fichier metrics.json
 from sklearn.datasets import load_iris
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score
 
 # --- CONFIGURATION & REPRODUCTIBILITÉ ---
-# On fixe la seed pour que l'entraînement donne toujours le même résultat (Critère 3)
 SEED = 42
 MODEL_PATH = os.getenv("MODEL_PATH", "models/model.joblib")
+METRICS_PATH = "models/metrics.json"
 
-# Configuration des logs structurés (Critère 7)
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
@@ -29,11 +29,17 @@ def set_seed(seed=SEED):
 def train():
     set_seed()
     
-    # 1. Chargement des données (On utilise Iris pour l'exemple)
+    # 1. Chargement des données
     logger.info("Chargement des données...")
     data = load_iris()
     X = pd.DataFrame(data.data, columns=data.feature_names)
     y = data.target
+
+    # --- POINT 5 : VALIDATION DES DONNÉES ---
+    if X.empty or len(y) == 0:
+        logger.error("Le dataset est vide. Arrêt de l'entraînement.")
+        return
+    logger.info(f"Données validées : {X.shape[0]} échantillons détectés.")
 
     # 2. Séparation Entraînement / Test
     X_train, X_test, y_train, y_test = train_test_split(
@@ -45,16 +51,26 @@ def train():
     model = RandomForestClassifier(n_estimators=100, random_state=SEED)
     model.fit(X_train, y_train)
 
-    # 4. Évaluation simple
+    # 4. Évaluation
     y_pred = model.predict(X_test)
     acc = accuracy_score(y_test, y_pred)
     logger.info(f"Entraînement terminé. Précision (Accuracy) : {acc:.4f}")
 
-    # 5. Sauvegarde du modèle (Critère 3)
-    # On s'assure que le dossier models existe
+    # 5. Sauvegarde du modèle (Artefact)
     os.makedirs(os.path.dirname(MODEL_PATH), exist_ok=True)
     joblib.dump(model, MODEL_PATH)
-    logger.info(f"Modèle sauvegardé avec succès dans : {MODEL_PATH}")
+    logger.info(f"Modèle sauvegardé dans : {MODEL_PATH}")
+
+    # --- POINT 5 : VERSIONING DES MÉTRIQUES (AUTOMATIQUE) ---
+    metrics = {
+        "accuracy": acc,
+        "model_type": "RandomForest",
+        "timestamp": pd.Timestamp.now().isoformat(),
+        "seed": SEED
+    }
+    with open(METRICS_PATH, "w") as f:
+        json.dump(metrics, f, indent=4)
+    logger.info(f"Métriques enregistrées dans : {METRICS_PATH}")
 
 if __name__ == "__main__":
     train()
