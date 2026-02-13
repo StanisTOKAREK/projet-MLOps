@@ -24,9 +24,10 @@ def startup_event():
     model = load_model()
 
 @app.get("/health")
-def health_check():
-    """Vérifie si l'API est fonctionnelle (Critère 6)"""
-    return {"status": "healthy", "timestamp": time.time()}
+def health():
+try:
+with open("models/metrics.json", "r") as f:
+metrics = json.load(f)
 
 @app.post("/predict")
 def predict(data: IrisData):

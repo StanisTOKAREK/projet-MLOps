@@ -1,6 +1,6 @@
 {
-    "accuracy": 0.9333333333333333,
+    "accuracy": 1.0,
     "model_type": "RandomForest",
-    "timestamp": "2026-02-13T10:54:09.521231",
-    "seed": 142
+    "timestamp": "2026-02-13T13:23:06.354723",
+    "seed": 42
 }
