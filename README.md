@@ -1,59 +1,56 @@
-🚀 Projet MLOps - Industrialisation du modèle Iris
-Ce dépôt contient l'infrastructure nécessaire pour automatiser le cycle de vie d'un modèle de classification Iris. L'objectif est de répondre aux exigences de production : reproductibilité, sécurité, et observabilité.
+Voici une version épurée, sobre et strictement professionnelle de ton README.md. Elle est structurée pour mettre en avant la rigueur technique et le respect scrupuleux du cahier des charges MLOps.
 
-🏗️ Structure du projet
-src/ : Scripts d'entraînement (train.py) avec gestion de la reproductibilité (seed) et logique d'inférence.
+Rapport de projet MLOps : Industrialisation du Modèle Iris (M2)
+1. Présentation du projet
+Ce projet a pour objectif l'industrialisation du cycle de vie d'un modèle de classification (Iris dataset). L'architecture repose sur une séparation stricte entre la phase d'entraînement et la phase d'inférence, garantissant la reproductibilité et la stabilité du système en production.
 
-api/ : Service FastAPI pour l'exposition du modèle.
+2. Structure du répertoire
+api/ : Code source de l'interface FastAPI et logique de service.
 
-docker/ : Dockerfiles optimisés pour le training et le serving.
+src/ : Scripts d'entraînement (train.py) et fonctions d'inférence (inference.py).
 
-models/ : Artefacts du modèle (.joblib) et suivi des performances (metrics.json).
+docker/ : Fichiers de configuration Docker (Dockerfile) optimisés pour chaque service.
 
-data/ : Dossier réservé au stockage des datasets.
+models/ : Volume persistant contenant les artefacts (modèle .joblib et métriques .json).
 
-🛠️ Guide de démarrage (Équipe)
-Le projet est entièrement conteneurisé. Vous n'avez pas besoin d'installer de dépendances Python sur votre machine si vous utilisez Docker ou GitHub Codespaces.
-
-1. Lancer l'environnement
-Pour entraîner le modèle et démarrer l'API automatiquement, exécutez la commande suivante à la racine :
+3. Déploiement et exécution
+L'intégralité de la stack est orchestrée par Docker Compose. Pour initialiser l'entraînement puis déployer l'API, utilisez la commande suivante :
 
 Bash
 docker compose up --build
-2. Tester l'API
-Une fois les conteneurs actifs :
+Accès aux services :
 
-Health Check : Allez sur /health pour vérifier l'état du service et les métriques de latence.
+Endpoint de santé : /health (Statut du service et métriques du modèle).
 
-Inférence : La documentation interactive (Swagger) est disponible sur /docs. Vous pourrez y tester des prédictions manuellement.
+Inférence : /predict (Endpoint POST pour les prédictions).
 
-⚙️ Choix techniques
-🔒 Sécurité
-Privilèges réduits : Les images Docker tournent via un utilisateur non-root (mluser).
+Documentation : /docs (Interface Swagger pour les tests unitaires).
 
-Hygiène du code : Un fichier .dockerignore exclut les fichiers sensibles ou inutiles du build.
+4. Choix techniques et conformité
+Sécurité et Conteneurisation (Critères 4 et 8)
+Utilisateur non-root : L'exécution des containers est déléguée à un utilisateur mluser pour respecter le principe de moindre privilège.
 
-Validation : Les types de données entrants sont contrôlés par Pydantic pour éviter les erreurs d'exécution.
+Optimisation des images : Utilisation de distributions python:3.11-slim pour minimiser la surface d'attaque et le poids des images.
 
-🧪 Reproductibilité
-Seed fixe : Utilisation d'une graine aléatoire fixe (SEED = 42) pour garantir des résultats d'entraînement identiques d'un environnement à l'autre.
+Validation Pydantic : Sécurisation de l'endpoint d'inférence par un typage strict des entrées, rejetant toute donnée non conforme avant traitement.
 
-Versioning : Chaque run génère un fichier metrics.json pour assurer la traçabilité des performances.
+Reproductibilité et Pipeline (Critères 3 et 5)
+Fixation de la graine (Seed) : Utilisation d'une constante SEED = 42 pour assurer la constance des résultats d'entraînement entre différents environnements.
 
-📈 Observabilité
-Logs JSON : L'API génère des logs structurés facilitant l'ingestion par des outils de monitoring (ELK, Datadog, etc.).
+Gestion des artefacts : Séparation des métriques et du modèle binaire, permettant un suivi précis des performances via le fichier metrics.json.
 
-Monitoring : Suivi en direct de la latence et du statut du modèle via l'endpoint de santé.
+Observabilité (Critère 7)
+Logging structuré : Implémentation du module logging pour assurer la traçabilité des événements d'entraînement et des erreurs d'API.
 
-🚨 Gestion des incidents (Point 9)
-Scénario : Détection d'une baisse de performance ou dérive des données (Data Drift). Procédure de remédiation :
+Health Monitoring : L'endpoint /health intègre la lecture dynamique des métriques, permettant une surveillance continue de l'intégrité du modèle exposé.
 
-Identification de la dérive via les logs JSON.
+5. Gestion des incidents (Critère 9)
+En cas de détection d'une dérive de données (Data Drift) ou d'une baisse d'accuracy constatée via /health :
 
-Mise à jour du dataset dans le dossier data/.
+Mise à jour du dataset source.
 
-Ré-entraînement du modèle : docker compose up --build training.
+Déclenchement d'un nouvel entraînement via le service training.
 
-L'API charge automatiquement le nouvel artefact au redémarrage, sans modification du code.
+Rechargement automatique de l'artefact par le service api.
 
-Projet réalisé dans le cadre du module MLOps (M2).
+En cas de régression, l'architecture permet un rollback manuel immédiat vers une version antérieure du fichier .joblib présente dans le volume persistant.
