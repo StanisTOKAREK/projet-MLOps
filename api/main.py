@@ -52,3 +52,6 @@ def predict(data: IrisData):
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+@app.get("/")
+def home():
+    return {"message": "Bienvenue sur l'API Iris. Allez sur /docs pour tester."}

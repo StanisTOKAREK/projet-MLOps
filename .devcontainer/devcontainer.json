@@ -1,0 +1,10 @@
+{
+    "name": "MLOps Project",
+    "portsAttributes": {
+        "8000": {
+            "label": "FastAPI Service",
+            "onAutoForward": "notify",
+            "visibility": "public"
+        }
+    }
+}
