@@ -1,5 +1,3 @@
-Voici une version épurée, sobre et strictement professionnelle de ton README.md. Elle est structurée pour mettre en avant la rigueur technique et le respect scrupuleux du cahier des charges MLOps.
-
 Rapport de projet MLOps : Industrialisation du Modèle Iris (M2)
 1. Présentation du projet
 Ce projet a pour objectif l'industrialisation du cycle de vie d'un modèle de classification (Iris dataset). L'architecture repose sur une séparation stricte entre la phase d'entraînement et la phase d'inférence, garantissant la reproductibilité et la stabilité du système en production.
