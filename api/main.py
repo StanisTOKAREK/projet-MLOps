@@ -1,8 +1,9 @@
+import json
+import numpy as np
+import time
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from src.inference import load_model
-import numpy as np
-import time
 
 # 1. Définition de l'application
 app = FastAPI(title="MLOps Prediction API")
@@ -23,11 +24,21 @@ def startup_event():
     global model
     model = load_model()
 
+@app.get("/")
+def home():
+    return {"message": "Bienvenue sur l'API Iris. Allez sur /docs pour tester."}
+
 @app.get("/health")
 def health():
-try:
-with open("models/metrics.json", "r") as f:
-metrics = json.load(f)
+    try:
+        # Correction de l'indentation ici
+        with open("models/metrics.json", "r") as f:
+            metrics = json.load(f)
+        return {"status": "healthy", "metrics": metrics}
+    except FileNotFoundError:
+        return {"status": "error", "message": "Fichier de métriques introuvable."}
+    except Exception as e:
+        return {"status": "error", "message": str(e)}
 
 @app.post("/predict")
 def predict(data: IrisData):
@@ -53,6 +64,3 @@ def predict(data: IrisData):
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
-@app.get("/")
-def home():
-    return {"message": "Bienvenue sur l'API Iris. Allez sur /docs pour tester."}
