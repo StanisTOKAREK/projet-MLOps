@@ -1,7 +1,7 @@
 # 1. Image légère (Point 4 : sans tag latest)
 FROM python:3.11-slim
 
-# 2. Sécurité : création d'un utilisateur non-root (Point 4)
+# 2. Sécurité : utilisateur non-root (Point 4 & 8)
 RUN useradd -m mluser
 WORKDIR /home/mluser
 
@@ -9,7 +9,7 @@ WORKDIR /home/mluser
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copie du code et création du dossier pour le modèle
+# Copie du code (Point 3 : Scripts séparés)
 COPY src/ ./src/
 RUN mkdir -p models && chown -R mluser:mluser /home/mluser
 
@@ -19,5 +19,5 @@ USER mluser
 # 4. Variables d'environnement (Point 8)
 ENV MODEL_PATH=/home/mluser/models/model.joblib
 
-# Exécution du script d'entraînement
+# Lancement de l'entraînement
 CMD ["python", "src/train.py"]

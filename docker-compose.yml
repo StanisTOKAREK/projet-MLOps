@@ -1,15 +1,15 @@
 version: '3.8'
 
 services:
-  # Étape d'entraînement
+  # Étape d'entraînement (Point 5 : Pipeline MLOps)
   training:
     build:
       context: .
       dockerfile: docker/train.Dockerfile
     volumes:
-      - ./models:/home/mluser/models
+      - ./models:/home/mluser/models # Volume pour persister le modèle et les métriques
 
-  # Étape de service (API)
+  # Étape de service (Point 6 : Déploiement)
   api:
     build:
       context: .
@@ -17,6 +17,7 @@ services:
     ports:
       - "8000:8000"
     volumes:
-      - ./models:/home/mluser/models
+      - ./models:/home/mluser/models # Accès au modèle entraîné
     depends_on:
-      - training
+      training:
+        condition: service_completed_successfully # Garantit que le modèle existe avant l'API
